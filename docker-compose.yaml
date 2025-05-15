@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  backend:
+    build: .
+    command: bash -c "service ssh start && ls -a && uv run uvicorn chat.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/srv/app
+  postgres:
+    image: postgres
+    env_file:
+      - ./.env
+    container_name: postgres
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
+
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file:
+      - ./.env
+    container_name: pgadm
+    ports:
+      - 5050:80
+    volumes:
+      - ./servers.json/:/pgadmin4/servers.json/
+
+volumes:
+  pgdbdata: null
