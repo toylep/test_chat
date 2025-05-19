@@ -22,5 +22,11 @@ migrate:
 logs:
 	@$(DOCKER_COMP) logs $(name) --tail=0 --follow
 
+test:
+	@$(MANAGER) pytest
+
+init_data:
+	@$(MANAGER) init_test_data.py
+
 linter:
 	@uv run black .
