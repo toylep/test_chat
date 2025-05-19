@@ -71,7 +71,7 @@ Swagger работает по ссылке /docs
 
 ## WS 
 Для подключения к WS
-ws://localhost:8000/ws/chat/{chat_id}
+ws://localhost:8000/api/v1/ws/{chat_id}
 
 ## 🧑‍💻 Автор
 
