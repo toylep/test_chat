@@ -28,13 +28,12 @@ class Chat(Base):
     __tablename__ = "chats"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String)
+    name: Mapped[str] = mapped_column(String, nullable=True)
     is_group: Mapped[bool] = mapped_column(Boolean, default=False)
+    group_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
-    # Вдохноляясь телеграмом я предположил что у группы может быть несколько чатов
-    # Но чаты могут быть и без группы 
-    group_id: Mapped[int] = mapped_column(Integer,nullable=True)
     messages = relationship("Message", back_populates="chat")
+
 
 class Group(Base):
     """
@@ -44,11 +43,13 @@ class Group(Base):
     __tablename__ = "groups"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String)
+    name: Mapped[str] = mapped_column(String, nullable=True)
     creator_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
+    members = relationship("GroupMember", back_populates="group")
 
-class GroupMembers(Base):
+
+class GroupMember(Base):
     """
     Табличка для связи пользователей и групп
     """
@@ -58,6 +59,8 @@ class GroupMembers(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     group_id: Mapped[int] = mapped_column(Integer, ForeignKey("groups.id"))
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+
+    group = relationship("Group", back_populates="members")
 
 
 class Message(Base):

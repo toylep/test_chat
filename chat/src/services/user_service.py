@@ -4,11 +4,11 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from chat.src.db.models import User
-from chat.src.schemas.user import Token, UserCreate
+from chat.src.schemas.user import TokenSchema, UserCreateSchema
 from chat.src.repositories.user_repo import UserRepository
 from chat.src.core.config import settings
 from chat.src.services.base import BaseService
-from chat.src.schemas.user import UserCreate, UserResponse, UserLogin
+from chat.src.schemas.user import UserCreateSchema, UserResponseSchema, UserLoginSchema
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -22,14 +22,14 @@ class AuthService:
         return pwd_context.hash(password)
 
 
-class UserService(BaseService[UserCreate, UserRepository]):
-    response_schema = UserResponse
+class UserService(BaseService[UserCreateSchema, UserRepository]):
+    response_schema = UserResponseSchema
 
     def __init__(self, repo: UserRepository):
         self.repo = repo
         self.auth = AuthService()
 
-    async def register_user(self, user_data: UserCreate) -> User:
+    async def register_user(self, user_data: UserCreateSchema) -> User:
         existing_user = await self.repo.get_by_email(user_data.email)
         if existing_user:
             raise HTTPException(
@@ -56,8 +56,10 @@ class UserService(BaseService[UserCreate, UserRepository]):
             )
         return user
 
+    async def get_all_by_id(self, ids: list[int]):
+        users = await self.repo.get_with_filters({"id": list(ids)})
+        return [self.response_schema.model_validate(user.__dict__) for user in users]
+
     async def get_by_email(self, email: str):
         user = await self.repo.get_by_email(email)
-        return self.response_schema.model_validate(
-            user.__dict__
-        )
+        return self.response_schema.model_validate(user.__dict__)

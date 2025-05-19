@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: e6606d818cff
+Revision ID: aabd994a390d
 Revises:
-Create Date: 2025-05-15 14:39:37.112690
+Create Date: 2025-05-16 13:51:29.927915
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "e6606d818cff"
+revision: str = "aabd994a390d"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,8 +25,9 @@ def upgrade() -> None:
     op.create_table(
         "chats",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("name", sa.String(), nullable=True),
         sa.Column("is_group", sa.Boolean(), nullable=False),
+        sa.Column("group_id", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_chats_id"), "chats", ["id"], unique=False)
@@ -43,7 +44,7 @@ def upgrade() -> None:
     op.create_table(
         "groups",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("name", sa.String(), nullable=True),
         sa.Column("creator_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["creator_id"],

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends
+from chat.src.core.security import get_current_user
 from chat.src.db.dependencies import get_db
+from chat.src.schemas.user import UserResponseSchema
 from chat.src.services.chat_service import ChatService
 from chat.src.schemas.chat import ChatCreateSchema
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,26 +13,24 @@ router = APIRouter(prefix="/chat")
 
 
 @router.get("/", response_model=list[ChatResponseSchema])
-async def get_chats(service: ChatService = Depends(get_chat_service)):
-    """
-    Получаем чаты
-    """
-    return await service.get_all()
-
-
-@router.post("/", response_model=ChatResponseSchema)
-async def add_chat(
-    schema: ChatCreateSchema, service: ChatService = Depends(get_chat_service)
+async def get_chats(
+    service: ChatService = Depends(get_chat_service),
+    current_user: UserResponseSchema = Depends(get_current_user),
 ):
     """
     Получаем чаты
     """
-    return await service.add(schema)
+    return await service.get_all_by_user(current_user)
 
 
-@router.delete("/{id}", response_model=ChatResponseSchema)
-async def delete_chat(id: int, service: ChatService = Depends(get_chat_service)):
+@router.post("/", response_model=ChatResponseSchema)
+async def add_chat(
+    schema: ChatCreateSchema,
+    service: ChatService = Depends(get_chat_service),
+    current_user: UserResponseSchema = Depends(get_current_user),
+):
     """
     Получаем чаты
     """
-    return await service.delete(id)
+    return await service.add(schema, current_user)
+

@@ -1,11 +1,21 @@
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
 class EnvSettings(BaseSettings):
+    
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+
+class EmailSettings(EnvSettings):
+    """
+    Настройки для почты
+    """
+
+    SMTP_HOST: str
+    SMTP_PORT: str
+    SMTP_USER: str
+    SMTP_PASSWORD: str
 
 
 class JWTSettings(EnvSettings):
@@ -42,6 +52,7 @@ class Settings(EnvSettings):
     # DATABASE_URL: str = "postgresql+asyncpg://user:pass@db:5432/db"
     db: DBSettings = DBSettings()
     jwt: JWTSettings = JWTSettings()
+    email: EmailSettings = EmailSettings()
 
 
 settings = Settings()

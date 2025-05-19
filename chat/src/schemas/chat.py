@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from chat.src.schemas.message import MessageSchema
+from chat.src.schemas.group import GroupCreateSchema
 
 
 class ChatCreateSchema(BaseModel):
@@ -7,8 +7,10 @@ class ChatCreateSchema(BaseModel):
     Схема создания чатов
     """
 
-    name: str
+    # Оставил пустым тк личные чаты вряд ли могут иметь название
+    name: str | None = None
     is_group: bool
+    group: GroupCreateSchema
 
 
 class ChatResponseSchema(BaseModel):
@@ -17,5 +19,6 @@ class ChatResponseSchema(BaseModel):
     """
 
     id: int
-    name: str
+    name: str | None
     is_group: bool
+    group_id: int | None

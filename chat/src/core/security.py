@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, WebSocket, status
 from chat.src.core.config import settings
 from chat.src.db.dependencies import get_db
 from chat.src.db.models import User
@@ -10,6 +10,26 @@ from chat.src.services.dependencies import get_user_service
 from chat.src.services.user_service import UserService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+
+async def get_current_user_in_ws(websocket: WebSocket, service: UserService):
+
+    token = websocket.headers.get("Authorization")
+
+    if not token or not token.startswith("Bearer "):
+        await websocket.close(code=1008)
+        return
+
+    token = token[7:]
+    try:
+        payload = jwt.decode(
+            token, settings.jwt.SECRET_KEY, algorithms=[settings.jwt.ALGORITHM]
+        )
+        user_email = payload.get("sub")
+        return await service.get_by_email(user_email)
+    except JWTError as e:
+        await websocket.close(code=1008)
+        raise e
 
 
 async def get_current_user(

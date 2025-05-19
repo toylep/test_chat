@@ -7,7 +7,8 @@ from typing import Generic, TypeVar, Type
 from pydantic import BaseModel
 from abc import ABC
 from chat.src.repositories.base import BaseRepository
-
+from fastapi.responses import JSONResponse
+from fastapi import status
 
 # CreateDTO = TypeVar("CreateDTO", bound=BaseModel)
 DTO = TypeVar("DTO", bound=BaseModel)
@@ -20,7 +21,7 @@ class BaseService[CreateDTO, Repository](ABC):
     def __init__(self, repo: Repository):
         self.repo = repo
 
-    async def get_all(self) -> list[DTO]:
+    async def get_all_by_user(self) -> list[DTO]:
         items = await self.repo.get_all()
         return [self.response_schema.model_validate(item.__dict__) for item in items]
 

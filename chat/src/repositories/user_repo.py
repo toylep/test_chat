@@ -7,5 +7,3 @@ class UserRepository(SQLAlchemyRepo[User]):
 
     async def get_by_email(self, email: str):
         return await self.get_with_filters({"email": email}, return_single=True)
-
-    
